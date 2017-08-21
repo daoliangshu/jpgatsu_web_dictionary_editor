@@ -1,0 +1,78 @@
+{% load custom_filters %}
+<tr>
+    <th>ID</th>
+    <th>Fields</th>
+    <th>Update</th>
+</tr>
+
+<!-- First row is for adding -->
+<tr id='new_id' class="add_row_class">
+    <td class="button_clear">
+        <input type="button" class="toggle_button" name='new_id' onmouseup="clean_row_to_add(this)"/> New Entry
+    </td>
+    <td class="tb_content" width="90%">
+        <table class=="content_table">
+            {% for i in 4|times %}
+
+            <tr>
+
+                <td class="label" contenteditable="false">
+                    {% cycle 'fr_1' 'jp_1' 'jp_2' 'zh_1' as my_fields %}
+                </td>
+                <td class={{my_fields}} contenteditable="true" width="80%">
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </td>
+
+    <td class="button_update">
+        <input type="button" name='new_id' onmouseup="ajax_update_entry(this)"/>
+    </td>
+</tr>
+
+
+{% for myrow in data %}
+<tr id={{myrow.pk}}>
+    <td><input type="button" class="toggle_button" name={{myrow.pk}} onmouseup="toggle_editable_component(this)"/>
+        {{myrow.pk}}
+    </td>
+    <td class="tb_content">
+        <table class=="content_table">
+            {% for field, value in myrow.fields.items %}
+
+            <tr>
+
+                <td class="label" contenteditable="false">
+                    {% cycle 'fr_1' 'jp_1' 'jp_2' 'zh_1' as my_fields %}
+                </td>
+                <td class={{my_fields}} contenteditable="false">
+                    {{myrow.fields.items|get_key_value:my_fields}}
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>
+                    Thematic
+                </td>
+                <td>
+                    {{thematic_choices}}
+                    <select>
+                        {% for key, value in thematic_choices %}
+                        <option value={{value}}
+                                {% if myrow.thematic== value %}{{
+                        'selected'}}{% endif %}>{{value}}:{{myrow.thematic}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+
+            </tr>
+
+
+        </table>
+    </td>
+    <td>
+        <input type="button" name={{myrow.pk}} onmouseup="ajax_update_entry(this)"/>
+    </td>
+</tr>
+{% endfor %}

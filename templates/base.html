@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    {% block head %}{% endblock %}
+    <title>Dictionaire</title>
+</head>
+<body>
+<header>Dictionnaire</header>
+
+<div class="page-header">
+    <a href="{% url 'post_new' %}" class="top-menu"><span class="glyphicon glyphicon-plus">Add Entry</span></a>
+</div>
+<section id="content2">
+    {% block content2 %}{% endblock %}
+</section>
+<section id="content">
+    {% block content %}{% endblock %}
+</section>
+<section id="add_entry">
+    {% block add_entry %}{% endblock %}
+</section>
+<footer> auteur: daoliangshumaishuji</footer>
+</body>
+</html>

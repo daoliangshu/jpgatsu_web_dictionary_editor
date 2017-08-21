@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content2 %}
+<h1>New post</h1>
+<form method="POST" class="post-form">{% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="save btn btn-default">Save</button>
+</form>
+{% endblock %}
+
+{% block content %}
+<table class="jp_word_entries_container">
+    <tr>
+        <th> ID</th>
+        <th> French</th>
+        <th> Japanese</th>
+        <th> Japanese Kanji</th>
+        <th> Chinese Zh</th>
+    </tr>
+    {% for entry in entries %}
+    <tr>
+        <td> {{entry.entry_id}}</td>
+        <td> {{entry.fr_1}}</td>
+        <td> {{entry.jp_1}}</td>
+        <td> {{entry.jp_2}}</td>
+        <td> {{entry.zh_1}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+
