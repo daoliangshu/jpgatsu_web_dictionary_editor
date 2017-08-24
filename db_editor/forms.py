@@ -11,4 +11,10 @@ class DictionaryEntryForm(forms.ModelForm):
 
 class SearchEntryForm(forms.Form):
     text = forms.CharField(max_length=50,
-                           widget=forms.Textarea(attrs={'onkeyup': 'get_entries();', 'rows': 1}))
+                           widget=forms.Textarea(
+                               attrs={'onkeypress': 'enterSearchBarKeyPress(event)',
+                                      'rows': 1}))
+    lv_choices = DictionaryEntry.lv_choices
+    my_level = forms.MultipleChoiceField(widget=forms.SelectMultiple(), choices=lv_choices)
+    thematic_choices = DictionaryEntry.thematic_choices
+    my_thematic = forms.MultipleChoiceField(widget=forms.SelectMultiple(), choices=thematic_choices)

@@ -10,12 +10,20 @@ function get_entries(){
     	}
 	});
 
+    var levelSelected = $('#id_my_level').val();
+    var thematicSelected = $('#id_my_thematic').val();
+    console.log('enter get_entries() with : ');
+    console.log('text:  ' + $('#id_text').val());
+    console.log('thematics:  ' + thematicSelected);
+    console.log('levels:  ' + levelSelected);
+    data = {'text': $('#id_text').val(),
+            'levels' : levelSelected,
+		    'thematics': thematicSelected};
 	$.ajax({url: '/editor/ajax_entries_request/',
 		type: 'POST',
-		//contentType: "application/json; charset=utf-8",
-		data: {'text': $('#id_text').val()},
+		data: data,
 		success: function(html){
-			var container = $(".jp_word_entries_container");
+			var container = $("#populate_content");
 			container.html(html);
 		}});
 }
@@ -48,14 +56,16 @@ function ajax_update_entry(component){
     var container = $('#'+my_entry_id);
 
     var my_dict = {
-        'fr_1': container.find(".fr_1").text(),
-        'zh_1': container.find(".zh_1").text(),
-        'jp_1': container.find(".jp_1").text(),
-        'jp_2': container.find(".jp_2").text()
+        'fr_1': container.find(".fr_1").text().trim(),
+        'zh_1': container.find(".zh_1").text().trim(),
+        'jp_1': container.find(".jp_1").text().trim(),
+        'jp_2': container.find(".jp_2").text().trim(),
+        'lv': container.find(".lv").val(),
+        'thematic': container.find(".thematic").val()
     };
 
     if(my_entry_id != "new_id"){
-        my_dict.push({'entry_id': my_entry_id});
+        my_dict['entry_id'] =  my_entry_id;
     }
 
 
@@ -73,7 +83,9 @@ function ajax_update_entry(component){
 		type: 'POST',
 		data: my_dict,
 		success: function(html){
-		console.log("Ajax_Success");
+		    if(my_entry_id == 'new_id'){
+		        $("#populate_content").html(html);
+		    }
 			$("#"+my_entry_id).css('background-color', 'gray');
 		}});
 }

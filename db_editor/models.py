@@ -60,3 +60,6 @@ class DictionaryEntry(models.Model):
     lv = models.IntegerField(null=True, choices=lv_choices)
 
     date = models.DateTimeField(default=datetime.now, blank=True)
+
+    def __str__(self):
+        print('DictionaryEntry:{fr_1:' + str(self.fr_1) + ",{jp_1:" + str(self.jp_1) + "}," + "{jp_2:" + str(self.jp_2))

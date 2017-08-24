@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
+
 {% block head %}
 <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script type="text/javascript" src={% static "db_editor/jquery-3.2.1.min.js" %}> </script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script type="text/javascript" src={% static "db_editor/my_ajax_function.js" %} ></script>
 <script type="text/javascript" src={% static "db_editor/my_events.js" %}></script>
 
@@ -11,24 +14,18 @@
 
 {% block content %}
 <div class="img_container">
-    <img src={% static "db_editor/han_button.png" %} alt="static_image"/>
+    <img class='.img-responsive' src={% static "db_editor/han_button.png" %} alt="static_image"/>
 </div>
 
 
 {% if form_search_was_valid %}
 
 {% else %}
-	<form action="/editor/home" method="POST">{% csrf_token %}
-	<ul>
-	{{ form_search.as_ul}}
-	<li><label for="submit">&nbsp</label>
-	<input type="submit" id="submit" name="submit" value="Submit"/></li>
-	</ul>
-	</form>
+{% include "db_editor/search_entries_block.html" %}
 {% endif %}
-<table class="jp_word_entries_container">
-	{%include "db_editor/populate_entries.html" %}
-</table>
+<div id="populate_content">
+    {% include "db_editor/populate_entries.html" %}
+</div>
 {% endblock %}
 
 {% block add_entry %}

@@ -1,0 +1,5 @@
+<form action="/editor/home" method="POST">{% csrf_token %}
+    <ul>
+        {{ form_search.as_table }}
+    </ul>
+</form>

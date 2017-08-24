@@ -1,78 +1,104 @@
 {% load custom_filters %}
-<tr>
-    <th>ID</th>
-    <th>Fields</th>
-    <th>Update</th>
-</tr>
+{% include "db_editor/add_entry.html" %}
 
-<!-- First row is for adding -->
-<tr id='new_id' class="add_row_class">
-    <td class="button_clear">
-        <input type="button" class="toggle_button" name='new_id' onmouseup="clean_row_to_add(this)"/> New Entry
-    </td>
-    <td class="tb_content" width="90%">
-        <table class=="content_table">
+
+<div class="container-fluid" id="entries_list">
+    <div class="row">
+        <div class="col-sm-1 col-xs-1 col-md-1">ID</div>
+        <div class="col-sm-9 col-xs-9 col-md-9">Fields</div>
+        <div class="col-sm-2 col-xs-2 col-md-2">Update</div>
+    </div>
+    {% for myrow in data %}
+    <div class="row" id={{myrow.pk}}>
+        <div class="col-sm-1 col-xs-1 col-md-1">
+            <button type="button"
+                    class="btn btn-active btn-sm btn-md btn-xs"
+                    name={{myrow.pk}}
+                    label="color_black"
+                    onmouseup="toggle_editable_component(this)">
+                <span class="glyphicon glyphicon-edit"></span>
+                {{myrow.pk}}
+            </button>
+        </div>
+
+
+        <div class="col-sm-9 col-xs-9 col-md-9">
             {% for i in 4|times %}
-
-            <tr>
-
-                <td class="label" contenteditable="false">
+            <div class="col-sm-12 col-xs-12 col-md-12">
+                <div class="col-sm-2 col-xs-2 col-md-2">
                     {% cycle 'fr_1' 'jp_1' 'jp_2' 'zh_1' as my_fields %}
-                </td>
-                <td class={{my_fields}} contenteditable="true" width="80%">
-                </td>
-            </tr>
+                </div>
+
+                <div class="col-sm-10 col-xs-10 col-md-10 ">
+                    <div class={{ my_fields }}
+                         contenteditable="false">
+                        {{myrow.fields.items|get_key_value:my_fields}}
+                    </div>
+                </div>
+            </div>
             {% endfor %}
-        </table>
-    </td>
+            <div class="col-sm-12 col-xs-12 col-md-12">
+                <div class="col-sm-2 col-xs-2 col-md-2">
+                    thematic
+                </div>
 
-    <td class="button_update">
-        <input type="button" name='new_id' onmouseup="ajax_update_entry(this)"/>
-    </td>
-</tr>
-
-
-{% for myrow in data %}
-<tr id={{myrow.pk}}>
-    <td><input type="button" class="toggle_button" name={{myrow.pk}} onmouseup="toggle_editable_component(this)"/>
-        {{myrow.pk}}
-    </td>
-    <td class="tb_content">
-        <table class=="content_table">
-            {% for field, value in myrow.fields.items %}
-
-            <tr>
-
-                <td class="label" contenteditable="false">
-                    {% cycle 'fr_1' 'jp_1' 'jp_2' 'zh_1' as my_fields %}
-                </td>
-                <td class={{my_fields}} contenteditable="false">
-                    {{myrow.fields.items|get_key_value:my_fields}}
-                </td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <td>
-                    Thematic
-                </td>
-                <td>
-                    {{thematic_choices}}
-                    <select>
+                <div class="col-sm-10 col-xs-10 col-md-10 ">
+                    <select class="thematic_select">
                         {% for key, value in thematic_choices %}
                         <option value={{value}}
-                                {% if myrow.thematic== value %}{{
-                        'selected'}}{% endif %}>{{value}}:{{myrow.thematic}}</option>
+                                {% if myrow.fields.thematic== key %}
+                                selected
+                                {% endif %}>
+                            {{value}}
+                        </option>
                         {% endfor %}
                     </select>
-                </td>
+                </div>
+            </div>
+            <div class="col-sm-12 col-xs-12 col-md-12">
+                <div class="col-sm-2 col-xs-2 col-md-2">
+                    level
+                </div>
 
-            </tr>
+                <div class="col-sm-10 col-xs-10 col-md-10 ">
+                    <select class="lv_select">
+                        {% for key, value in lv_choices %}
+                        <option value={{value}}
+                                {% if myrow.fields.lv== key %}
+                                selected
+                                {% endif %}>
+                            {{value}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2 col-xs-2 col-md-2 ">
+            <div class="col-sm-12 col-xs-12 col-md-12 ">
+                <button type="button"
+                        name={{myrow.pk}}
+                        onmouseup="ajax_update_entry(this)"
+                        class="btn btn-success btn-sm btn-md btn-xs">
+                    <span class="glyphicon glyphicon-ok-sign"></span>
+                </button>
+            </div>
+            <div class="col-sm-12 col-xs-12 col-md-12 ">
+                <div class="min_height_separator"></div>
+            </div>
+            <div class="col-sm-12 col-xs-12 col-md-12 ">
+                <button type="button"
+                        name={{myrow.pk}}
+                        class="btn btn-danger btn-sm btn-md btn-xs">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </button>
+            </div>
 
 
-        </table>
-    </td>
-    <td>
-        <input type="button" name={{myrow.pk}} onmouseup="ajax_update_entry(this)"/>
-    </td>
-</tr>
-{% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+
+
