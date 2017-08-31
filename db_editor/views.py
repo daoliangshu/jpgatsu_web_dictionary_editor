@@ -1,18 +1,28 @@
 import json
 from datetime import datetime
 
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import login as django_login_view
+from django.contrib.auth.views import logout as django_logout_view
 from django.core import serializers
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
+from django.template import loader, Context
+from django.views.generic import FormView
 
 from db_editor.forms import DictionaryEntryForm
 from db_editor.forms import SearchEntryForm
+from db_editor.models import DictionaryBackUpEntry
 from db_editor.models import DictionaryEntry
 
 
-def getCurrentDate(request):
+def home_view(request):
     data = datetime.now()
+    username = 'visitor'
+    if request.user.is_authenticated():
+        username = request.user.username
+
     if request.POST.get('fr_1'):
         kargs = {}
         for key, value in request.POST.items():
@@ -51,16 +61,6 @@ def getCurrentDate(request):
         print('IS_VALID_FORM')
     return render(request, 'db_editor/interface.html', locals())
 
-
-def home(request):
-    mutable = request.POST._mutable
-    request.POST._mutable = True
-    request.POST['search_column'] = 'fr_1'
-    request.POST['value'] = 'vi'
-    request.POST._mutable = mutable
-    return getCurrentDate(request)
-
-
 def post_new(request):
     form = DictionaryEntryForm()
     return render(request, 'db_editor/post_edit.html', {'form': form})
@@ -70,10 +70,12 @@ def ajax_entries_request(request):
     if request.is_ajax() and request.method == 'POST':
         thematics_selected = request.POST.getlist('thematics[]')
         levels_selected = request.POST.getlist('levels[]')
+        search_pattern = request.POST.get('search_pattern')
         print('TEXT: ' + request.POST.get('text', ''))
         print('THEMATICS: ' + str(thematics_selected))
         print('LEVELS: ' + str(levels_selected))
-        kargs = {'fr_1__startswith': request.POST.get('text', '')
+        print('PATTERN: ' + str(search_pattern))
+        kargs = {'fr_1__' + search_pattern: request.POST.get('text', '')
                  }
         if len(levels_selected) > 0:
             kargs['lv__in'] = levels_selected
@@ -81,9 +83,6 @@ def ajax_entries_request(request):
             kargs['thematic__in'] = thematics_selected
 
         entries = DictionaryEntry.objects.filter(**kargs)[:400]
-
-
-
         data = serializers.serialize('python', entries,
                                      fields=('jp_1', 'jp_2', 'zh_1', 'fr_1', 'lesson', 'lv', 'thematic'),
                                      use_natural_primary_keys=True)
@@ -100,44 +99,96 @@ def ajax_update_request(request):
             'jp_1': request.POST.get('jp_1', ''),
             'jp_2': request.POST.get('jp_2', ''),
             'zh_1': request.POST.get('zh_1', ''),
-            'thematic': request.POST.get('thematic', ''),
-            'lv': request.POST.get('lv', '')
+            'thematic': request.POST.get('thematic', -1),
+            'lv': request.POST.get('lv', 0)
         }
-        print(str(my_data))
+
         if len(my_data['entry_id']) <= 0:
             my_data.pop('entry_id', '')
-            lv = 0
-            lv_as_str = my_data.get('lv', '')
-            for i in range(len(DictionaryEntry.lv_choices)):
-                print('value: ' + DictionaryEntry.lv_choices[i][1] + " vs " + lv_as_str)
-                if DictionaryEntry.lv_choices[i][1] == lv_as_str:
-                    lv = i
-                    break
-            thematic_as_str = my_data.get('thematic', '')
-            thematic = -1
-            for i in range(len(DictionaryEntry.thematic_choices)):
-                print('value: ' + DictionaryEntry.thematic_choices[i][1] + " vs " + thematic_as_str)
-                if DictionaryEntry.thematic_choices[i][1] == thematic_as_str:
-                    thematic = i
-                    break
 
-            print(str(lv))
-            DictionaryEntry.objects.create(fr_1=my_data['fr_1'],
-                                           zh_1=my_data['zh_1'],
-                                           jp_1=my_data['jp_1'],
-                                           jp_2=my_data['jp_2'],
-                                           lv=lv,
-                                           thematic=thematic
-                                           )
-            lv_choices = DictionaryEntry.lv_choices
-            thematic_choices = DictionaryEntry.thematic_choices
-            kargs = {'fr_1__exact': my_data['fr_1'],
-                     'jp_1__contains': my_data['jp_1'],
-                     'jp_2__contains': my_data['jp_2']}
-            entries = DictionaryEntry.objects.filter(**kargs)[:400]
-            data = serializers.serialize('python', entries,
-                                         fields=('jp_1', 'jp_2', 'zh_1', 'fr_1', 'lesson', 'lv', 'thematic'),
-                                         use_natural_primary_keys=True)
-            return render_to_response('db_editor/populate_entries.html', locals())
+        if 'entry_id' in my_data.keys():
+            my_entry_id = my_data.pop('entry_id')
+            print('my_data: ' + str(my_data))
+            print('entri+id: ' + my_entry_id)
+            print('thematic : ' + my_data['thematic'])
+            DictionaryEntry.objects.filter(entry_id=int(my_entry_id)).update(**my_data)
+        else:
+            DictionaryEntry.objects.create(my_data)
+        lv_choices = DictionaryEntry.lv_choices
+        thematic_choices = DictionaryEntry.thematic_choices
+        kargs = {'fr_1__exact': my_data['fr_1'],
+                 'jp_1__contains': my_data['jp_1'],
+                 'jp_2__contains': my_data['jp_2']}
+        entries = DictionaryEntry.objects.filter(**kargs)[:400]
+        data = serializers.serialize('python', entries,
+                                     fields=('jp_1', 'jp_2', 'zh_1', 'fr_1', 'lesson', 'lv', 'thematic'),
+                                     use_natural_primary_keys=True)
+        return render_to_response('db_editor/populate_entries.html', locals())
 
     return HttpResponse(json.dumps(my_data['fr_1']), content_type='application/javascript')
+
+
+def ajax_remove_request(request):
+    if request.is_ajax() and request.method == 'POST':
+        my_data = {
+            'entry_id': request.POST.get('entry_id', ''),
+            'fr_1': request.POST.get('fr_1', ''),
+            'jp_1': request.POST.get('jp_1', ''),
+            'jp_2': request.POST.get('jp_2', ''),
+            'zh_1': request.POST.get('zh_1', ''),
+            'thematic': request.POST.get('thematic', -1),
+            'lv': request.POST.get('lv', -1)
+        }
+
+        if 'entry_id' in my_data.keys():
+            my_entry = DictionaryEntry.objects.filter(entry_id=my_data['entry_id']).remove()
+            DictionaryBackUpEntry.objects.create(**my_data)
+
+    return HttpResponse(json.dumps(my_data['fr_1']), content_type='application/javascript')
+
+
+def get_dictionary_as_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=jpgatsu_dic.csv'
+
+    entries = DictionaryEntry.objects.all()
+    data = []
+    for entry in entries:
+        data.append((entry.entry_id,
+                     entry.fr_1,
+                     entry.jp_1,
+                     entry.jp_2,
+                     entry.zh_1,
+                     entry.en_1,
+                     entry.lesson,
+                     entry.thematic,
+                     entry.lv,
+                     entry.date)
+                    )
+
+    t = loader.get_template('db_editor/csv_template.txt')
+    c = Context({
+        'data': data,
+    })
+    response.write(t.render(c))
+    return response
+
+
+class LoginView(FormView):
+    form_class = AuthenticationForm
+    template_name = 'db_editor/login.html'
+
+    def form_valid(self, form):
+        usuario = form.get_user()
+
+        django_login_view(self.request, usuario)
+        return redirect('/editor/home')
+        # return super(LoginView, self).form_valid(form)
+
+
+def logout_view(request):
+    username = None
+    if request.user.is_authenticated():
+        username = request.user.username
+    django_logout_view(request)
+    return render_to_response('/registration/logged_out.html', locals())
