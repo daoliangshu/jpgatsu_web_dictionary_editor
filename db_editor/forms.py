@@ -10,10 +10,18 @@ class DictionaryEntryForm(forms.ModelForm):
 
 
 class SearchEntryForm(forms.Form):
-    text = forms.CharField(max_length=50,
+    text = forms.CharField(max_length=30,
                            widget=forms.Textarea(
                                attrs={'onkeypress': 'enterSearchBarKeyPress(event)',
                                       'rows': 1}))
+    fields_choices = (
+        ('fr_1', 'French'),
+        ('jp_1', 'Japanese [No Kanji]'),
+        ('jp_2', 'Japanese [With Kanji]'),
+        ('zh_1', 'Chinese [Traditional]')
+    )
+    my_field = forms.MultipleChoiceField(widget=forms.SelectMultiple(),
+                                         choices=fields_choices)
     lv_choices = DictionaryEntry.lv_choices
     my_level = forms.MultipleChoiceField(widget=forms.SelectMultiple(), choices=lv_choices)
     thematic_choices = DictionaryEntry.thematic_choices

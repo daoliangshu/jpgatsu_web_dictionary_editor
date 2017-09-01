@@ -1,20 +1,38 @@
 <!DOCTYPE html>
 <html>
-
+{% load static %}
 <head>
-
+    <link rel="stylesheet" type="text/css" href={% static
+    "base_style.css" %}>
     {% block head %}{% endblock %}
     <title>Dictionaire</title>
 </head>
 <body>
-<header>Dictionnaire</header>
-
+<header>
 <div class="page-header">
-    <a href="{% url 'post_new' %}" class="top-menu"><span class="glyphicon glyphicon-plus">Add Entry</span></a>
+    <div id="top_panel">
+        <img class='.img-responsive' src={% static "db_editor/han_button.png" %} id='app_logo' alt="static_image"/>
+        <a href="download_csv/">Download CSV</a>
+    </div>
+    {% if show_header %}
+    <div>
+        Connected as '{{username}}'
+    </div>
+    <div>
+        {% if username == None %}
+        <a href="/editor/accounts/login">Login</a>
+        {% else %}
+        <a href="/editor/accounts/logout">Logout</a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
+</header>
+<main>
 <section id="content">
     {% block content %}{% endblock %}
 </section>
+</main>
 <footer> auteur: daoliangshumaishuji</footer>
 </body>
 </html>

@@ -1,7 +1,6 @@
 import json
-from datetime import datetime
 
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.views import login as django_login_view
 from django.contrib.auth.views import logout as django_logout_view
 from django.core import serializers
@@ -18,8 +17,8 @@ from db_editor.models import DictionaryEntry
 
 
 def home_view(request):
-    data = datetime.now()
-    username = 'visitor'
+    show_header = True
+    username = None
     if request.user.is_authenticated():
         username = request.user.username
 
@@ -55,6 +54,7 @@ def home_view(request):
     thematic_choices = DictionaryEntry.thematic_choices
     lv_choices = DictionaryEntry.lv_choices
     form_search = SearchEntryForm()
+
     data = serializers.serialize('python', entries, fields=('fr_1', 'jp_1', 'jp_2', 'zh_1', 'thematic', 'lesson', 'lv'))
     form = DictionaryEntryForm()
     if form.is_valid():
@@ -67,31 +67,45 @@ def post_new(request):
 
 
 def ajax_entries_request(request):
+    username = None
+    if request.user.is_authenticated():
+        username = request.user.username
     if request.is_ajax() and request.method == 'POST':
         thematics_selected = request.POST.getlist('thematics[]')
         levels_selected = request.POST.getlist('levels[]')
+        fields_selected = request.POST.getlist('search_fields[]')
         search_pattern = request.POST.get('search_pattern')
         print('TEXT: ' + request.POST.get('text', ''))
         print('THEMATICS: ' + str(thematics_selected))
         print('LEVELS: ' + str(levels_selected))
         print('PATTERN: ' + str(search_pattern))
-        kargs = {'fr_1__' + search_pattern: request.POST.get('text', '')
-                 }
+        print('FIELDS: ' + str(fields_selected))
+        kargs = {}
+        if len(fields_selected) > 0:
+            for value in fields_selected:
+                kargs[value + '__' + search_pattern] = request.POST.get('text', '')
+        else:
+            kargs['fr_1' + '__' + search_pattern] = request.POST.get('text', '')
         if len(levels_selected) > 0:
             kargs['lv__in'] = levels_selected
-        if len(thematics_selected) > 0:
+        if len(thematics_selected) > 1:
             kargs['thematic__in'] = thematics_selected
+        elif len(thematics_selected) == 1 and thematics_selected != -1:
+            kargs['thematic__exact'] = thematics_selected[0]
+
 
         entries = DictionaryEntry.objects.filter(**kargs)[:400]
         data = serializers.serialize('python', entries,
-                                     fields=('jp_1', 'jp_2', 'zh_1', 'fr_1', 'lesson', 'lv', 'thematic'),
-                                     use_natural_primary_keys=True)
+                                     fields=('fr_1', 'jp_1', 'jp_2', 'zh_1', 'thematic', 'lesson', 'lv'))
         lv_choices = DictionaryEntry.lv_choices
         thematic_choices = DictionaryEntry.thematic_choices
     return render_to_response('db_editor/populate_entries.html', locals())
 
 
 def ajax_update_request(request):
+    username = None
+    if request.user.is_authenticated():
+        username = request.user.username
     if request.is_ajax() and request.method == 'POST':
         my_data = {
             'entry_id': request.POST.get('entry_id', ''),
@@ -110,7 +124,7 @@ def ajax_update_request(request):
             my_entry_id = my_data.pop('entry_id')
             print('my_data: ' + str(my_data))
             print('entri+id: ' + my_entry_id)
-            print('thematic : ' + my_data['thematic'])
+            print('thematic : ' + str(my_data['thematic']))
             DictionaryEntry.objects.filter(entry_id=int(my_entry_id)).update(**my_data)
         else:
             DictionaryEntry.objects.create(my_data)
@@ -119,10 +133,10 @@ def ajax_update_request(request):
         kargs = {'fr_1__exact': my_data['fr_1'],
                  'jp_1__contains': my_data['jp_1'],
                  'jp_2__contains': my_data['jp_2']}
-        entries = DictionaryEntry.objects.filter(**kargs)[:400]
+        entries = DictionaryEntry.objects.filter(**kargs)[:4]
         data = serializers.serialize('python', entries,
                                      fields=('jp_1', 'jp_2', 'zh_1', 'fr_1', 'lesson', 'lv', 'thematic'),
-                                     use_natural_primary_keys=True)
+                                     )
         return render_to_response('db_editor/populate_entries.html', locals())
 
     return HttpResponse(json.dumps(my_data['fr_1']), content_type='application/javascript')
@@ -141,9 +155,8 @@ def ajax_remove_request(request):
         }
 
         if 'entry_id' in my_data.keys():
-            my_entry = DictionaryEntry.objects.filter(entry_id=my_data['entry_id']).remove()
+            my_entry = DictionaryEntry.objects.filter(entry_id=my_data['entry_id']).delete()
             DictionaryBackUpEntry.objects.create(**my_data)
-
     return HttpResponse(json.dumps(my_data['fr_1']), content_type='application/javascript')
 
 
@@ -170,7 +183,12 @@ def get_dictionary_as_csv(request):
     c = Context({
         'data': data,
     })
-    response.write(t.render(c))
+
+    csv_from_html = t.render(c)
+    print('out:  ' + csv_from_html)
+    print('out length: ' + str(len(csv_from_html)))
+    response['Content-Length'] = len(csv_from_html)
+    response.write(csv_from_html)
     return response
 
 
@@ -191,4 +209,12 @@ def logout_view(request):
     if request.user.is_authenticated():
         username = request.user.username
     django_logout_view(request)
-    return render_to_response('/registration/logged_out.html', locals())
+    return render_to_response('registration/logged_out.html', locals())
+
+
+def register(request):
+    form = UserCreationForm(request.POST)
+    if form.is_valid():
+        user = form.save()
+
+    return render_to_response('registration/register.html', locals())

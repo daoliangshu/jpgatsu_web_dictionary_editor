@@ -1,6 +1,8 @@
 {% load custom_filters %}
-{% include "db_editor/add_entry.html" %}
 
+{% if username %}
+{% include "db_editor/add_entry.html" %}
+{% endif %}
 
 <div class="container-fluid" id="entries_list">
     <div class="row">
@@ -15,10 +17,15 @@
                     class="btn btn-active btn-sm btn-md btn-xs"
                     name={{myrow.pk}}
                     label="color_black"
-                    onmouseup="toggle_editable_component(this)">
+                    onmouseup="toggle_editable_component(this)"
+                    {% if username== None %}
+                    disabled
+                    {% endif %}
+            >
                 <span class="glyphicon glyphicon-edit"></span>
-                {{myrow.pk}}
+
             </button>
+            <br>
         </div>
 
 
@@ -45,7 +52,7 @@
                 <div class="col-sm-10 col-xs-10 col-md-10 ">
                     <select class="thematic_select">
                         {% for key, value in thematic_choices %}
-                        <option value={{value}}
+                        <option value={{key}}
                                 {% if myrow.fields.thematic== key %}
                                 selected
                                 {% endif %}>
@@ -63,7 +70,7 @@
                 <div class="col-sm-10 col-xs-10 col-md-10 ">
                     <select class="lv_select">
                         {% for key, value in lv_choices %}
-                        <option value={{value}}
+                        <option value={{key}}
                                 {% if myrow.fields.lv== key %}
                                 selected
                                 {% endif %}>
@@ -79,7 +86,8 @@
                 <button type="button"
                         name={{myrow.pk}}
                         onmouseup="ajax_update_entry(this)"
-                        class="btn btn-success btn-sm btn-md btn-xs">
+                        class="btn btn-success btn-sm btn-md btn-xs"
+                        {% if username== None %}disabled{% endif %}>
                     <span class="glyphicon glyphicon-ok-sign"></span>
                 </button>
             </div>
@@ -89,7 +97,9 @@
             <div class="col-sm-12 col-xs-12 col-md-12 ">
                 <button type="button"
                         name={{myrow.pk}}
-                        class="btn btn-danger btn-sm btn-md btn-xs">
+                        class="btn btn-danger btn-sm btn-md btn-xs"
+                        onmouseup="ajax_remove_entry(this)"
+                        {% if username== None %}disabled{% endif %}>
                     <span class="glyphicon glyphicon-remove"></span>
                 </button>
             </div>

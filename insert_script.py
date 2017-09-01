@@ -2,10 +2,15 @@ import csv
 
 from db_editor.models import DictionaryEntry
 
+print('before')
 with open("./table_to_import.csv") as f:
+    print('entered')
     reader = csv.reader(f)
-    print("start1")
+    # print("start1")
+    # my_count = 0
     for row in reader:
+        # print(my_count)
+        #my_count = my_count + 1
         for i in range(0, len(row)):
             if row[i].strip() == "":
                 row[i] = None

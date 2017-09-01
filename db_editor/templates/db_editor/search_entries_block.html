@@ -1,5 +1,22 @@
+<div id="search_panel">
 <form action="/editor/home" method="POST">{% csrf_token %}
-    <ul>
-        {{ form_search.as_table }}
-    </ul>
+    {{ form_search.as_table }}
+    <select id="id_search_pattern">
+        <option value='startswith'>
+            Starts with
+        </option>
+        <option value='contains'>
+            Contains
+        </option>
+        <option value='endswith'>
+            Ends with
+        </option>
+        <option value='exact'>
+            Exact Match
+        </option>
+        <option value='regex'>
+            Regex Pattern
+        </option>
+    </select>
 </form>
+</div>

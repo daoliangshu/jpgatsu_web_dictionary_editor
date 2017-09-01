@@ -1,13 +1,22 @@
 {% load custom_filters %}
 
 
-<div class="container-fluid">
+<div class="container-fluid" id="add_panel">
     <div class="row">
-        <div class="col-sm-1 col-xs-1 col-md-1">ID</div>
-        <div class="col-sm-9 col-xs-9 col-md-9">Fields</div>
-        <div class="col-sm-2 col-xs-2 col-md-2">Update</div>
+        <div class="col-sm-12 col-xs-12 col-md-12">
+            <div id="toggle_add" onmouseup="toogleAddPanelDisplay(this)"
+                 onpress="toogleAddPanelDisplay(this)
+            title=" Press to togglethe display of the create entry panel
+            ">
+            <p><span class='glyphicon glyphicon-minus'></span> Show Add Panel</p></div>
     </div>
-    <div class="row" id="new_id">
+</div>
+<div class="row" id="new_id_fields" style="display:none;">
+    <div class="col-sm-1 col-xs-1 col-md-1">ID</div>
+    <div class="col-sm-9 col-xs-9 col-md-9">Fields</div>
+    <div class="col-sm-2 col-xs-2 col-md-2">Update</div>
+</div>
+<div class="row" id="new_id" style="display:none;">
         <div class="col-sm-1 col-xs-1 col-md-1">
             <button type="button"
                     title="Clean"
@@ -72,5 +81,6 @@
 
         </div>
     </div>
+</div>
 
 

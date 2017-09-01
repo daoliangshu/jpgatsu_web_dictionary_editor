@@ -13,8 +13,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="img_container">
-    <img class='.img-responsive' src={% static "db_editor/han_button.png" %} alt="static_image"/>
+<div id="display_state_panel">
 </div>
 
 
@@ -27,12 +26,3 @@
     {% include "db_editor/populate_entries.html" %}
 </div>
 {% endblock %}
-
-{% block add_entry %}
-	 <form method="POST" class="post-form">{% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="save btn btn-default">Save</button>
-    </form>
-
-{% endblock %}
-
