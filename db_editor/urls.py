@@ -5,6 +5,8 @@ from . import views
 
 urlpatterns = [
     url(r'^ajax_entries_request/$', views.ajax_entries_request),
+    url(r'^ajax_next_page/$', views.ajax_next_page),
+    url(r'^ajax_previous_page/$', views.ajax_previous_page),
     url(r'^ajax_update_request/$', views.ajax_update_request),
     url(r'^ajax_remove_request/$', views.ajax_remove_request),
     url(r'^home$', views.home_view),

@@ -13,11 +13,6 @@ function get_entries(){
     var levelSelected = $('#id_my_level').val();
     var thematicSelected = $('#id_my_thematic').val();
     var searchFieldsSelected = $('#id_my_field').val();
-    console.log('enter get_entries() with : ');
-    console.log('text:  ' + $('#id_text').val());
-    console.log('thematics:  ' + thematicSelected);
-    console.log('levels:  ' + levelSelected);
-    console.log('fields:  ' + searchFieldsSelected);
     data = {'text': $('#id_text').val(),
             'levels' : levelSelected,
 		    'thematics': thematicSelected,
@@ -63,6 +58,7 @@ function ajax_update_entry(component){
 
     var my_dict = {
         'fr_1': container.find(".fr_1").text().trim(),
+        'fr_2': container.find(".fr_2").text().trim(),
         'zh_1': container.find(".zh_1").text().trim(),
         'jp_1': container.find(".jp_1").text().trim(),
         'jp_2': container.find(".jp_2").text().trim(),
@@ -95,7 +91,8 @@ function ajax_update_entry(component){
 		    }
 		    else{
 		        //ontainer.html(html);
-		        $("#"+my_entry_id).css('background-color', 'gray');
+		        var updateStatus = $("#"+my_entry_id+" .update_status");
+		        updateStatus.css('background-color', '#AAFFAA');
 		        show_updated();
 		    }
 
@@ -109,6 +106,7 @@ function ajax_remove_entry(component){
     var my_dict = {
         'entry_id' : my_entry_id,
         'fr_1': container.find(".fr_1").text().trim(),
+        'fr_2': container.find(".fr_2").text().trim(),
         'zh_1': container.find(".zh_1").text().trim(),
         'jp_1': container.find(".jp_1").text().trim(),
         'jp_2': container.find(".jp_2").text().trim(),
@@ -138,4 +136,51 @@ function ajax_remove_entry(component){
 			show_removed();
 		}});
     }
+}
+
+
+function ajax_next_page(component){
+
+    var csrftoken = getCookie('csrftoken');
+	$.ajaxSetup({
+   		crossDomain: false, // obviates need for sameOrigin test
+    	beforeSend: function(xhr, settings) {
+        	if (!csrfSafeMethod(settings.type)) {
+         	   xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        	}
+    	}
+	});
+
+    var my_dict = {
+        'current_page':$("#current_page").html()
+    };
+    $.ajax({url: '/editor/ajax_next_page/',
+		type: 'POST',
+		data: my_dict,
+		success: function(html){
+		    $("#populate_content").html(html);
+		}});
+}
+
+function ajax_previous_page(component){
+
+    var csrftoken = getCookie('csrftoken');
+	$.ajaxSetup({
+   		crossDomain: false, // obviates need for sameOrigin test
+    	beforeSend: function(xhr, settings) {
+        	if (!csrfSafeMethod(settings.type)) {
+         	   xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        	}
+    	}
+	});
+
+    var my_dict = {
+        'current_page':$("#current_page").html()
+    };
+    $.ajax({url: '/editor/ajax_previous_page/',
+		type: 'POST',
+		data: my_dict,
+		success: function(html){
+		    $("#populate_content").html(html);
+		}});
 }

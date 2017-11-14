@@ -1,7 +1,7 @@
 function toggle_editable_component(component_child){
 
     var container = $('#' + component_child.name);
-    var class_tag = ['fr_1', 'jp_1', 'jp_2', 'zh_1'];
+    var class_tag = ['fr_1', 'fr_2',  'jp_1', 'jp_2', 'zh_1'];
     var temp = container.find(".fr_1").attr("contenteditable");
     if(temp=="true")temp = "false";
     else temp = "true";
@@ -12,7 +12,7 @@ function toggle_editable_component(component_child){
 
 function clean_row_to_add(component_child){
     var container = $("#" + component_child.name);
-    var class_tag = ['fr_1', 'jp_1', 'jp_2', 'zh_1'];
+    var class_tag = ['fr_1', 'fr_2', 'jp_1', 'jp_2', 'zh_1'];
     for(cur_tag in class_tag){
         my_field = container.find("." + class_tag[cur_tag]);
         my_field.attr('contenteditable', 'true' );

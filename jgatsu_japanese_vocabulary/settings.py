@@ -26,7 +26,7 @@ SECRET_KEY = jgatsu_japanese_vocabulary.prod_settings.SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["192.168.1.71", "192.168.1.50"]
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 

@@ -15,16 +15,21 @@
         <a href="download_csv/">Download CSV</a>
     </div>
     {% if show_header %}
+    {% if username == None %}
+    <div>
+        You are connected as a guess.
+    </div>
+    <div>
+        <a href="/editor/accounts/login">Login</a>
+    </div>
+    {% else %}
     <div>
         Connected as '{{username}}'
     </div>
     <div>
-        {% if username == None %}
-        <a href="/editor/accounts/login">Login</a>
-        {% else %}
         <a href="/editor/accounts/logout">Logout</a>
-        {% endif %}
     </div>
+    {% endif %}
     {% endif %}
 </div>
 </header>
@@ -32,6 +37,7 @@
 <section id="content">
     {% block content %}{% endblock %}
 </section>
+
 </main>
 <footer> auteur: daoliangshumaishuji</footer>
 </body>

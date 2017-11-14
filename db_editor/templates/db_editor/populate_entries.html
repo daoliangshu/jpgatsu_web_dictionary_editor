@@ -4,7 +4,38 @@
 {% include "db_editor/add_entry.html" %}
 {% endif %}
 
+
 <div class="container-fluid" id="entries_list">
+    <div id="page_nav_panel">
+        <button type="button"
+                name='previous_page'
+                class="btn btn-danger btn-sm btn-md btn-xs"
+                onmouseup="ajax_previous_page(this)"
+                {% if current_page== 0 %}
+                disabled
+                {% endif %}
+                {% if username== None %}disabled{% endif %}>
+            <span class="glyphicon glyphicon-backward"></span>
+        </button>
+        <button type="button" disabled
+                name='current_page'
+                class="btn btn-danger btn-sm btn-md btn-xs"
+                {% if username== None %}disabled{% endif %}>
+            <span class="glyphicon glyphicon-oil">{{current_page}}/{{last_page}}</span>
+
+        </button>
+
+        <button type="button"
+                name='next_page'
+                class="btn btn-danger btn-sm btn-md btn-xs"
+                onmouseup="ajax_next_page(this)"
+                {% if current_page== last_page %}
+                disabled
+                {% endif %}
+                {% if username== None %}disabled{% endif %}>
+            <span class="glyphicon glyphicon-forward"></span>
+        </button>
+    </div>
     <div class="row">
         <div class="col-sm-1 col-xs-1 col-md-1">ID</div>
         <div class="col-sm-9 col-xs-9 col-md-9">Fields</div>
@@ -25,15 +56,44 @@
                 <span class="glyphicon glyphicon-edit"></span>
 
             </button>
+            <div class='date'>
+
+                last:[{{ myrow.fields.date }}]
+            </div>
+            <div class="update_status">
+            </div>
             <br>
         </div>
 
 
         <div class="col-sm-9 col-xs-9 col-md-9">
-            {% for i in 4|times %}
+            <div class="col-sm-12 col-xs-12 col-md-12">
+
+                {% for i in 2|times %}
+                <div class="col-sm-1 col-xs-1 col-md-1">
+                    {% cycle 'fr_1' 'fr_2' as my_fields %}
+                </div>
+                {% if my_fields == 'fr_1' %}
+                <div class="col-sm-8 col-xs-8 col-md-8 ">
+                    <div class={{ my_fields }}
+                         contenteditable="false">
+                        {{myrow.fields.items|get_key_value:my_fields}}
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-sm-2 col-xs-2 col-md-2 ">
+                    <div class={{ my_fields }}
+                         contenteditable="false">
+                        {{myrow.fields.items|get_key_value:my_fields}}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% for i in 3|times %}
             <div class="col-sm-12 col-xs-12 col-md-12">
                 <div class="col-sm-2 col-xs-2 col-md-2">
-                    {% cycle 'fr_1' 'jp_1' 'jp_2' 'zh_1' as my_fields %}
+                    {% cycle 'jp_1' 'jp_2' 'zh_1' as my_fields %}
                 </div>
 
                 <div class="col-sm-10 col-xs-10 col-md-10 ">
@@ -108,6 +168,7 @@
         </div>
     </div>
     {% endfor %}
+
 </div>
 
 

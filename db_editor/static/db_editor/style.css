@@ -92,7 +92,8 @@ tr input{
     color: #000000;
     min-height: 30px;
     font-size: 1.5em;
-    border: 4px dotted #404040;
+    border: 2px dashed #404040;
+    margin: 4px;
     border-radius:4px;
 }
 
@@ -110,18 +111,45 @@ tr input{
 }
 
 
-#toggle_add{
-  background: #8cff66;
 
-    cursor: pointer;
+#add_entry_container{
+    widthL 100%;
+    box-shadow: 0px 16px 14px #771100;
+    margin-bottom: 30px;
 }
 
+#toggle_add{
+    background: #8cff66;
+    cursor: pointer;
+}
+#add_panel{
+    width: 95%;
+    border: 4px dashed #555599;
+    border-radius: 5px;
+    margin-bottom: 15px;
+
+}
+
+@media screen and (max-width: 680px){
 #add_panel{
     width: 100%;
     border: 4px dashed #555599;
     border-radius: 5px;
     margin-bottom: 7px;
+
 }
+}
+
+@media screen and (min-width: 681px) and (max-width: 1279px){
+#add_panel{
+    width: 95%;
+    border: 4px dashed #555599;
+    border-radius: 5px;
+    margin-bottom: 15px;
+
+}
+}
+
 
 #add_panel .row{
     background-color: #b3ffff;
@@ -140,9 +168,6 @@ tr input{
     margin-bottom: 5px;
 }
 
-#populate_content:after{
-    width: 100%;
-}
 
 #id_text{
     margin-left: 2px;
@@ -157,7 +182,7 @@ tr input{
     position: fixed;
     top: 0px;
     left: 0px;
-    padding 5px 5px 5px 5px;
+    padding: 5px 5px 5px 5px;
     height: 15%;
     z-index: 1;
     width: 100%;
@@ -169,4 +194,9 @@ tr input{
     display: none;
     box-shadow: 3px 2px 5px yellow;
     text-align: center;
+}
+
+.update_status{
+    min-height: 30px;
+    min-width: 30px;
 }
